@@ -1,47 +1,45 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>hack.me</title>
-<link rel="shortcut icon" href="skull.ico">
-</head>
 <?php
-/*
-SCENARIO :
-- Alice send a mail to Bob : "Hey I've found a bug in your website at the page + link". In fact the link contains the XSS injection on the login page
-- Bob opens the link and sees that he is not connected
-- Bob connect to the website
-- His username and password has been transmitted by the script to Alice
-*/
-$connected = false;
-if(isset($_GET['username']) && isset($_GET['password'])) {
-  if($_GET['username'] != 'admin' || $_GET['password'] != 'admin'){
-    // Here is an Reflected XSS Attacks. The input 'username' from the client side isn't sanitized
-    echo '<p style="color:red">The username ' . $_GET['username'] . ' or password is incorrect</p>';
-    // e.g. : <script>alert('You got hacked!');</script> as username => the script is interpreted
-  }else{
-    $connected = true;
-    echo 'You are connected! Here are some sensitive information : <a href="https://github.com/misterch0c/shadowbroker">Shadow Brokers leaks</a>';
+  $connected = false;
+  $message = null;
+  if(isset($_POST["email"]) && isset($_POST["password"])){
+      if(($_POST["email"] == "admin") && ($_POST["password"]== "admin")){
+        $connected = true;
+      }else{
+      $message = "L'email '".htmlspecialchars($_POST["email"])."' avec le mot de passe '".htmlspecialchars($_POST["password"])."' ne sont pas corrects.";
+    }
   }
-}
-
-if(!$connected) :
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>Le site de ta vie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+  </head>
 
-<body>
-  <form name="login" action="/cgi-bin/check-login.cgi" method="get" accept-charset="utf-8">
-      <label for="username">Username</label>
-      <input type="text" name="username" placeholder="username" required>
-      <label for="password">Password</label>
-      <input type="password" name="password" placeholder="password" required>
-      <input type="submit" value="Login">
-    </ul>
-  </form>
-</body>
+  <body>
 
-<?php
-endif
-?>
+    <div class="container">
+      <?php
+        if($connected != true){
+      ?>
+          <div class="alert alert-error"><?php echo $message; ?></div>
+      <form action="index.php" method="post">
+        <h2>Se connecter</h2>
+        <input type="text" name="email" placeholder="Adresse email">
+        <input type="password" name="password" placeholder="Mot de passe">
+        <button type="submit">Envoyer</button>
+      </form>
 
-</html>
+      <?php
+        }else{
+          echo 'You are connected! Here are some sensitive information : <a href="https://github.com/misterch0c/shadowbroker">Shadow Brokers leaks</a>';
+            echo '<a type="button" href="check-login.cgi">GO BACK</a>';
+        }
+      ?>
+
+</body></html>
