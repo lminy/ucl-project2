@@ -1,11 +1,14 @@
 <?php
   $connected = false;
   $message = null;
-  if(isset($_POST["email"]) && isset($_POST["password"])){
-      if(($_POST["email"] == "admin") && ($_POST["password"]== "admin")){
+  include("connectDB.php");
+  if(isset($_POST["username"]) && isset($_POST["password"])){
+      //$query = mysql_query("SELECT * FROM administateur WHERE Mail = :mail AND Password = :password ");
+      $query = mysql_query("SELECT * FROM administateur WHERE Mail ='".$_POST["username"]."' AND Password='".$_POST["password"]."'");
+			if(mysql_num_rows($query) > 0){
         $connected = true;
       }else{
-      $message = "L'email '".htmlspecialchars($_POST["email"])."' avec le mot de passe '".htmlspecialchars($_POST["password"])."' ne sont pas corrects.";
+      $message = "L'identifiant '".htmlspecialchars($_POST["username"])."' avec le mot de passe '".htmlspecialchars($_POST["password"])."' ne sont pas corrects.";
     }
   }
   if(isset($_POST["personName"]))
@@ -32,7 +35,7 @@
           <div class="alert alert-error"><?php echo $message; ?></div>
       <form action="index.php" method="post">
         <h2>Se connecter</h2>
-        <input type="text" name="email" placeholder="Adresse email">
+        <input type="text" name="username" placeholder="Identifiant">
         <input type="password" name="password" placeholder="Mot de passe">
         <button type="submit">Envoyer</button>
       </form>
