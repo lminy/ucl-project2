@@ -8,6 +8,8 @@
       $message = "L'email '".htmlspecialchars($_POST["email"])."' avec le mot de passe '".htmlspecialchars($_POST["password"])."' ne sont pas corrects.";
     }
   }
+  if(isset($_POST["personName"]))
+    $message = "La personne '".$_POST["personName"]."' n'a pas été trouvée.";
 ?>
 
 <!DOCTYPE html>
@@ -36,10 +38,25 @@
       </form>
 
       <?php
-        }else{
-          echo 'You are connected! Here are some sensitive information : <a href="https://github.com/misterch0c/shadowbroker">Shadow Brokers leaks</a></br></br>';
-            echo '<a type="button" href="check-login.cgi">GO BACK</a>';
-        }
-      ?>
+        }else{?>
+          You are connected! Here are some sensitive information : <a href="https://github.com/misterch0c/shadowbroker">Shadow Brokers leaks</a></br></br>
+          <h1>Rechercher une personne</h1>
+          <?php
+            if($message != null):
+          ?>
+              <div class="alert alert-error"><?php echo $message; ?></div>
+          <?php
+            endif;
+          ?>
+
+    	  <form action="index.php" method="post">
+            <input type="text" name="personName" placeholder="Entrer le nom d'une personne">
+            <br><br>
+            <button type="submit">Rechercher</button>
+          </form>
+          <a type="button" href="check-login.cgi">GO BACK</a>
+
+
+        <?php }  ?>
 
 </body></html>
