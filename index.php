@@ -37,7 +37,7 @@
 
       <?php
         }else{
-          echo 'You are connected! Here are some sensitive information : <a href="https://github.com/misterch0c/shadowbroker">Shadow Brokers leaks</a>';
+          echo 'You are connected! Here are some sensitive information : <a href="https://github.com/misterch0c/shadowbroker">Shadow Brokers leaks</a></br></br>';
             echo '<a type="button" href="check-login.cgi">GO BACK</a>';
         }
       ?>
