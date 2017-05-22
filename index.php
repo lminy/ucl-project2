@@ -1,65 +1,55 @@
 <?php
-  $connected = false;
-  $message = null;
-  include("connectDB.php");
-  if(isset($_POST["username"]) && isset($_POST["password"])){
-      //$query = mysql_query("SELECT * FROM administateur WHERE Mail = :mail AND Password = :password ");
-      $query = mysql_query("SELECT * FROM administateur WHERE Mail ='".$_POST["username"]."' AND Password='".$_POST["password"]."'");
-			if(mysql_num_rows($query) > 0){
-        $connected = true;
-      }else{
-      $message = "L'identifiant '".htmlspecialchars($_POST["username"])."' avec le mot de passe '".htmlspecialchars($_POST["password"])."' ne sont pas corrects.";
-    }
+$dbname = 'uclprojet2';
+$host = 'localhost';
+$db_user = 'root';
+$db_password = '';
+
+/*
+SCENARIO :
+- Alice send a mail to Bob : "Hey I've found a bug in your website at the page + link". In fact the link contains the XSS injection on the login page
+- Bob opens the link and sees that he is not connected
+- Bob connect to the website
+- His username and password has been transmitted by the script to Alice
+*/
+
+$connected = false;
+$message='';
+$db = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $db_user, $db_password);
+$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+if(isset($_GET['username']) && isset($_GET['password'])) {
+  $is_valid = file_get_contents("http://$host/cgi-bin/check-login.cgi?" . $_GET['password']);
+  $stmt = $db->query("SELECT * FROM administrateur WHERE Mail = '".$_GET['username']."' AND $is_valid"); // Username is checked in the DB and the password with the C file
+
+  if($connected = ($stmt->rowCount() > 0)){
+    $message = '<p>You are connected! Here are some sensitive information : <a href="https://github.com/misterch0c/shadowbroker">Shadow Brokers leaks</a></p>';
+  }else{
+    // Here is a Reflected XSS Attacks. The input 'username' from the client side isn't sanitized
+    $message = '<p style="color:red">The username ' . $_GET['username'] . ' or password is incorrect</p>';
+    // e.g. : <script>alert('You got hacked!');</script> as username => the script is interpreted
   }
-  if(isset($_POST["personName"]))
-    $message = "La personne '".$_POST["personName"]."' n'a pas été trouvée.";
+}
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <title>Le site de ta vie</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
-  </head>
-
-  <body>
-
-    <div class="container">
-      <?php
-        if($connected != true){
-      ?>
-          <div class="alert alert-error"><?php echo $message; ?></div>
-      <form action="index.php" method="post">
-        <h2>Se connecter</h2>
-        <input type="text" name="username" placeholder="Identifiant">
-        <input type="password" name="password" placeholder="Mot de passe">
-        <button type="submit">Envoyer</button>
-      </form>
-
-      <?php
-        }else{?>
-          You are connected! Here are some sensitive information : <a href="https://github.com/misterch0c/shadowbroker">Shadow Brokers leaks</a></br></br>
-          <h1>Rechercher une personne</h1>
-          <?php
-            if($message != null):
-          ?>
-              <div class="alert alert-error"><?php echo $message; ?></div>
-          <?php
-            endif;
-          ?>
-
-    	  <form action="index.php" method="post">
-            <input type="text" name="personName" placeholder="Entrer le nom d'une personne">
-            <br><br>
-            <button type="submit">Rechercher</button>
-          </form>
-          <a type="button" href="check-login.cgi">GO BACK</a>
-
-
-        <?php }  ?>
-
-</body></html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>hack.me</title>
+  <link rel="shortcut icon" href="skull.ico">
+</head>
+<body>
+<?php
+echo $message;
+if($connected == False) :
+?>
+  <form name="login" action="<?=$_SERVER['REQUEST_URI']?>" method="get" accept-charset="utf-8">
+    <label for="username">Username</label>
+    <input type="text" name="username" placeholder="username" required>
+    <label for="password">Password</label>
+    <input type="password" name="password" placeholder="password" required>
+    <input type="submit" value="Login">
+  </form>
+<?php
+endif
+?>
+</html>
