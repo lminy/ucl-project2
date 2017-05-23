@@ -43,4 +43,4 @@ If the attacker website is lminy.alwaysdata.net, with a little bit of social eng
 
 The attacker can then check its apache logs to know the username & password of the admin :
 
-[logo]: https://github.com/lminy/ucl-project2/blob/master/lminy.alwaysdata.net.log.png "Apache logs"
+[logo]: ./lminy.alwaysdata.net.log.png "Apache logs"
