@@ -1,9 +1,11 @@
 #!/bin/bash
-echo "Content-type: text/html"
-echo ""
-decoded=$(printf '%b' "${QUERY_STRING//%/\\x}")
-echo "<html><body>$decoded</body><html>"
 
-# Check the login
+password=$(printf '%b' "${QUERY_STRING//%/\\x}")
 
 # Call buff3r-ov3rfl0w with password
+is_valid="$(./buff3r-ov3rfl0w $password)"
+
+# PHP answer
+echo "Content-type: text/html"
+echo ""
+echo "${is_valid}"
